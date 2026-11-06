@@ -2,12 +2,13 @@ import {
   AppSettings,
   DEFAULT_SETTINGS,
   FONTS,
+  FONT_SIZES,
   SETTINGS_STORAGE_KEY,
   THEMES,
 } from './constants';
 
 /**
- * Penyimpanan pengaturan tema & font di localStorage.
+ * Penyimpanan pengaturan tema, font & ukuran teks di localStorage.
  * Dibuat sebagai "store" kecil agar bisa dipakai React lewat useSyncExternalStore
  * (lihat hooks/useSettings.ts). Nanti bisa diganti ke backend tanpa mengubah komponen.
  */
@@ -21,16 +22,19 @@ function read(): AppSettings {
     return {
       theme: THEMES.some((t) => t.value === raw.theme) ? raw.theme : DEFAULT_SETTINGS.theme,
       font: FONTS.some((f) => f.value === raw.font) ? raw.font : DEFAULT_SETTINGS.font,
+      size: FONT_SIZES.some((s) => s.value === raw.size) ? raw.size : DEFAULT_SETTINGS.size,
     };
   } catch {
     return DEFAULT_SETTINGS;
   }
 }
 
-/** Pasang tema & font ke <html data-theme data-font> -> CSS di globals.css yang bekerja. */
+/** Pasang pengaturan ke <html data-theme data-font data-size> -> CSS di globals.css yang bekerja. */
 function applyToDocument(settings: AppSettings) {
-  document.documentElement.dataset.theme = settings.theme;
-  document.documentElement.dataset.font = settings.font;
+  const root = document.documentElement;
+  root.dataset.theme = settings.theme;
+  root.dataset.font = settings.font;
+  root.dataset.size = settings.size;
 }
 
 function notify() {
@@ -74,4 +78,8 @@ export function updateSettings(patch: Partial<AppSettings>) {
   }
   applyToDocument(cached);
   notify();
+}
+
+export function resetSettings() {
+  updateSettings(DEFAULT_SETTINGS);
 }
