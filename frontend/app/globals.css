@@ -1,8 +1,136 @@
 @import "tailwindcss";
 
+/*
+ * ============================================================
+ *  TOKEN WARNA & FONT
+ * ============================================================
+ *  Semua warna aplikasi dipakai lewat nama semantik, contoh:
+ *    bg-page, bg-surface, text-ink, border-line, bg-primary ...
+ *  Nilainya berubah otomatis mengikuti atribut <html data-theme="...">.
+ *  Untuk menambah tema baru, cukup tambah satu blok [data-theme="..."].
+ */
+
+/* ---------- Tema LIGHT (default) ---------- */
+:root,
+[data-theme="light"] {
+  --page: #fdfbf7;
+  --surface: #fffdf9;
+  --field: #f9f6f0;
+  --hover: #f7f0eb;
+  --line: #f0e6dd;
+  --line-strong: #ebe0d5;
+  --ink: #5a4d41;
+  --ink-soft: #7a6b5d;
+  --ink-muted: #8c7a6b;
+  --primary: #7d5a50;
+  --primary-hover: #684940;
+  --on-primary: #ffffff;
+  --accent: #b96d6d;
+  --accent-soft: #f7ebe8;
+  --focus: #d8a7a7;
+  --danger: #b96d6d;
+  --danger-soft: #fdf2f2;
+  --danger-line: #f2d6d6;
+  --success: #4a7c43;
+  --success-soft: #eff6ee;
+  --success-line: #d4e8d1;
+  color-scheme: light;
+}
+
+/* ---------- Tema DARK ---------- */
+[data-theme="dark"] {
+  --page: #1a1614;
+  --surface: #241f1c;
+  --field: #2c2622;
+  --hover: #342d28;
+  --line: #3a322d;
+  --line-strong: #4a403a;
+  --ink: #f2e9e1;
+  --ink-soft: #cdbfb3;
+  --ink-muted: #9c8d80;
+  --primary: #d9a18f;
+  --primary-hover: #e7b5a5;
+  --on-primary: #2a1f1a;
+  --accent: #e3a0a0;
+  --accent-soft: #3a2b2b;
+  --focus: #b77d7d;
+  --danger: #f0a0a0;
+  --danger-soft: #3a2323;
+  --danger-line: #5a3434;
+  --success: #9bd08f;
+  --success-soft: #202f20;
+  --success-line: #2f4a2f;
+  color-scheme: dark;
+}
+
+/* ---------- Tema PASTEL ---------- */
+[data-theme="pastel"] {
+  --page: #fff5f9;
+  --surface: #ffffff;
+  --field: #fff0f6;
+  --hover: #ffe6f0;
+  --line: #f8d7e6;
+  --line-strong: #f2c4da;
+  --ink: #5b4570;
+  --ink-soft: #7c6592;
+  --ink-muted: #8e79a3;
+  --primary: #8f5fb8;
+  --primary-hover: #7c4ea3;
+  --on-primary: #ffffff;
+  --accent: #c2538a;
+  --accent-soft: #fbe3ef;
+  --focus: #d9a8e6;
+  --danger: #c0504d;
+  --danger-soft: #fff0f0;
+  --danger-line: #f8c8c8;
+  --success: #2f7d4b;
+  --success-soft: #eaf8ee;
+  --success-line: #bfe6cb;
+  color-scheme: light;
+}
+
+/* ---------- FONT ---------- */
+/* Variabel --font-poppins dst. dibuat oleh next/font di app/layout.tsx */
+:root,
+[data-font="poppins"] {
+  --font-active: var(--font-poppins), system-ui, sans-serif;
+}
+[data-font="nunito"] {
+  --font-active: var(--font-nunito), system-ui, sans-serif;
+}
+[data-font="playfair"] {
+  --font-active: var(--font-playfair), Georgia, serif;
+}
+
+/* Daftarkan token ke Tailwind -> bisa dipakai sebagai class (bg-page, text-ink, ...) */
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-field: var(--field);
+  --color-hover: var(--hover);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-focus: var(--focus);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-line: var(--danger-line);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-line: var(--success-line);
+  --font-sans: var(--font-active);
+}
+
 @layer base {
   body {
-    background-color: #FDFBF7;
-    color: #4A4238;
+    background-color: var(--page);
+    color: var(--ink);
   }
 }

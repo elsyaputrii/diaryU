@@ -1,154 +1,89 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
-import { apiClient } from '@/services/api';
-import { MoodType } from '@/types';
-import { Save, ArrowLeft } from 'lucide-react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
+import PageShell from '@/components/layout/PageShell';
+import ErrorNotice from '@/components/ui/ErrorNotice';
+import Loading from '@/components/ui/Loading';
+import DiaryForm from '@/features/diary/components/DiaryForm';
+import { createDiary } from '@/features/diary/services/diaryService';
+import type { DiaryFormValues } from '@/features/diary/validation';
+import { MOODS } from '@/features/mood/constants';
+import { lockDiary } from '@/features/private/store';
+import { getErrorMessage } from '@/lib/errors';
+import { todayISO } from '@/lib/date';
+import { useToast } from '@/providers/ToastProvider';
+import type { MoodType } from '@/types';
 
-const moods: { type: MoodType; label: string; emoji: string }[] = [
-  { type: 'happy', label: 'Happy', emoji: '😊' },
-  { type: 'calm', label: 'Calm', emoji: '🌿' },
-  { type: 'sad', label: 'Sad', emoji: '💧' },
-  { type: 'anxious', label: 'Anxious', emoji: '💭' },
-  { type: 'excited', label: 'Excited', emoji: '✨' },
-  { type: 'reflective', label: 'Reflective', emoji: '🌙' },
-];
-
-export default function CreateDiaryPage() {
+function CreateDiaryContent() {
   const router = useRouter();
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [mood, setMood] = useState<MoodType>('happy');
-  const [entryDate, setEntryDate] = useState(new Date().toISOString().split('T')[0]);
-  const [loading, setLoading] = useState(false);
+  const toast = useToast();
+  const params = useSearchParams();
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !content) {
-      setError('Judul dan isi catatan diary wajib diisi.');
-      return;
-    }
+  // Bisa dibuka dari kalender (?date=2026-10-19) atau Mood Tracker (?mood=happy)
+  const dateParam = params.get('date') ?? '';
+  const moodParam = params.get('mood') as MoodType | null;
+  const initialValues: DiaryFormValues = {
+    title: '',
+    content: '',
+    mood: MOODS.some((m) => m.type === moodParam) ? (moodParam as MoodType) : 'happy',
+    entryDate: /^\d{4}-\d{2}-\d{2}$/.test(dateParam) && dateParam <= todayISO() ? dateParam : todayISO(),
+    isPrivate: false,
+  };
 
-    setLoading(true);
+  const handleSubmit = async (values: DiaryFormValues) => {
+    setSubmitting(true);
     setError('');
-
     try {
-      await apiClient.post('/diaries', {
-        title,
-        content,
-        mood,
-        entry_date: entryDate,
+      const created = await createDiary({
+        title: values.title.trim(),
+        content: values.content.trim(),
+        mood: values.mood,
+        entry_date: values.entryDate,
       });
+      if (values.isPrivate) lockDiary(created.id);
+      toast.success('Catatan berhasil disimpan.');
       router.push('/diary');
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message || 'Gagal menyimpan diary.';
+    } catch (err) {
+      const message = getErrorMessage(err, 'Gagal menyimpan diary.');
       setError(message);
+      toast.error(message);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDFBF7]">
-      <Navbar />
+    <>
+      <div className="mb-6">
+        <Link href="/diary" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink mb-2">
+          <ArrowLeft className="w-4 h-4" /> Kembali ke Daftar Diary
+        </Link>
+        <h1 className="text-2xl font-bold text-ink">Tulis Catatan Baru</h1>
+        <p className="text-sm text-ink-muted">Abadikan momen dan perasaanmu hari ini.</p>
+      </div>
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
+      {error && (
         <div className="mb-6">
-          <Link href="/diary" className="inline-flex items-center gap-2 text-sm text-[#7A6B5D] hover:text-[#5A4D41] mb-2">
-            <ArrowLeft className="w-4 h-4" /> Kembali ke Daftar Diary
-          </Link>
-          <h1 className="text-2xl font-bold text-[#5A4D41]">Tulis Catatan Baru</h1>
-          <p className="text-sm text-[#8C7A6B]">Abadikan momen dan perasaanmu hari ini.</p>
+          <ErrorNotice message={error} />
         </div>
+      )}
 
-        {error && (
-          <div className="mb-6 p-4 rounded-2xl bg-[#FDF2F2] border border-[#F2D6D6] text-[#B96D6D] text-sm">
-            {error}
-          </div>
-        )}
+      <DiaryForm initialValues={initialValues} submitLabel="Simpan Catatan" submitting={submitting} onSubmit={handleSubmit} cancelHref="/diary" />
+    </>
+  );
+}
 
-        <form onSubmit={handleSubmit} className="bg-[#FFFDF9] border border-[#F0E6DD] rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#7A6B5D] mb-2">Judul Catatan</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Contoh: Hari yang penuh ketenangan di kafe..."
-              required
-              className="w-full px-4 py-3 bg-[#F9F6F0] border border-[#EBE0D5] rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#D8A7A7]"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#7A6B5D] mb-2">Tanggal</label>
-              <input
-                type="date"
-                value={entryDate}
-                onChange={(e) => setEntryDate(e.target.value)}
-                required
-                className="w-full px-4 py-3 bg-[#F9F6F0] border border-[#EBE0D5] rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#D8A7A7]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#7A6B5D] mb-2">Pilih Suasana Hati (Mood)</label>
-              <div className="grid grid-cols-3 gap-2">
-                {moods.map((m) => (
-                  <button
-                    type="button"
-                    key={m.type}
-                    onClick={() => setMood(m.type)}
-                    className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-2xl text-xs font-semibold capitalize transition border ${
-                      mood === m.type
-                        ? 'bg-[#7D5A50] text-white border-[#7D5A50] shadow-xs'
-                        : 'bg-[#F9F6F0] text-[#7A6B5D] border-[#EBE0D5] hover:bg-[#F2ECE4]'
-                    }`}
-                  >
-                    <span>{m.emoji}</span>
-                    <span>{m.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#7A6B5D] mb-2">Isi Catatan</label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={8}
-              placeholder="Ceritakan harimu di sini..."
-              required
-              className="w-full px-4 py-3 bg-[#F9F6F0] border border-[#EBE0D5] rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#D8A7A7]"
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t border-[#F5EBE6]">
-            <Link
-              href="/diary"
-              className="px-6 py-3 bg-[#F7F0EB] text-[#7A6B5D] font-medium rounded-2xl text-sm hover:bg-[#EFE5DC] transition"
-            >
-              Batal
-            </Link>
-            <button
-              type="submit"
-              disabled={loading}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#7D5A50] hover:bg-[#684940] text-white font-medium rounded-2xl text-sm shadow-md transition disabled:opacity-50"
-            >
-              <Save className="w-4 h-4" /> {loading ? 'Menyimpan...' : 'Simpan Catatan'}
-            </button>
-          </div>
-        </form>
-      </main>
-    </div>
+export default function CreateDiaryPage() {
+  return (
+    <PageShell width="max-w-3xl">
+      <Suspense fallback={<Loading />}>
+        <CreateDiaryContent />
+      </Suspense>
+    </PageShell>
   );
 }

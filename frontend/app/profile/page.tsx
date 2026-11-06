@@ -1,133 +1,115 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Navbar from '@/components/Navbar';
-import { apiClient } from '@/services/api';
-import { User as UserIcon, Mail, Save, Sparkles, CheckCircle } from 'lucide-react';
+import { Mail, Save, User as UserIcon } from 'lucide-react';
+import PageShell from '@/components/layout/PageShell';
+import Loading from '@/components/ui/Loading';
+import ErrorNotice from '@/components/ui/ErrorNotice';
+import TextField from '@/components/ui/TextField';
+import { buttonPrimary } from '@/components/ui/styles';
+import ChangePasswordForm from '@/features/profile/components/ChangePasswordForm';
+import { getProfile, ProfileData, updateProfile } from '@/features/profile/services/profileService';
+import { ProfileErrors, validateProfile } from '@/features/profile/validation';
+import { getSessionEmail } from '@/features/auth/tokenStorage';
+import { migratePrivacyKey } from '@/features/private/store';
+import { getErrorMessage, getFieldErrors } from '@/lib/errors';
+import { useToast } from '@/providers/ToastProvider';
 
 export default function ProfilePage() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const toast = useToast();
+  const [values, setValues] = useState<ProfileData>({ name: '', email: '' });
+  const [errors, setErrors] = useState<ProfileErrors>({});
   const [loading, setLoading] = useState(true);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [error, setError] = useState('');
+  const [loadError, setLoadError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-
-    const fetchProfile = async () => {
-      try {
-        const res = await apiClient.get('/user');
-        const data = res.data.data || res.data;
-        if (cancelled) return;
-        setName(data.name);
-        setEmail(data.email);
-      } catch (err) {
-        console.error('Gagal mengambil profil:', err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-
-    fetchProfile();
-
+    getProfile()
+      .then((p) => !cancelled && setValues(p))
+      .catch((err) => !cancelled && setLoadError(getErrorMessage(err, 'Gagal mengambil profil.')))
+      .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadKey]);
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const setField = (key: keyof ProfileData, value: string) => {
+    setValues((v) => ({ ...v, [key]: value }));
+    setErrors((e) => ({ ...e, [key]: undefined }));
+  };
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSuccessMessage('');
-    setError('');
+    const validation = validateProfile(values);
+    setErrors(validation);
+    if (Object.keys(validation).length) return;
 
+    setSaving(true);
     try {
-      const res = await apiClient.put('/user/profile', { name, email });
-      const data = res.data.data || res.data;
-      setName(data.name ?? name);
-      setEmail(data.email ?? email);
-      setSuccessMessage('Profil berhasil diperbarui.');
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message || 'Gagal memperbarui profil.';
-      setError(message);
+      const saved = await updateProfile(values);
+      setValues(saved);
+      // Email berubah -> data lokal (PIN diary pribadi) ikut dipindah agar tidak hilang
+      if (saved.email.trim().toLowerCase() !== getSessionEmail()) migratePrivacyKey(getSessionEmail(), saved.email);
+      toast.success('Profil berhasil diperbarui.');
+    } catch (err) {
+      const fields = getFieldErrors(err);
+      if (fields.name || fields.email) setErrors({ name: fields.name, email: fields.email });
+      toast.error(getErrorMessage(err, 'Gagal memperbarui profil.'));
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDFBF7]">
-      <Navbar />
+    <PageShell width="max-w-3xl">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-ink">Profil Saya</h1>
+        <p className="text-sm text-ink-muted">Kelola informasi akun dan keamanan.</p>
+      </div>
 
-      <main className="flex-1 max-w-xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
-        <div className="mb-6">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F7EBE8] text-[#7D5A50] text-xs font-semibold mb-3">
-            <Sparkles className="w-3.5 h-3.5" /> Account Settings
-          </span>
-          <h1 className="text-2xl font-bold text-[#5A4D41]">Profil Pengguna</h1>
-          <p className="text-sm text-[#8C7A6B]">Kelola informasi akun pribadi Elsya&apos;s Diary.</p>
+      {loading ? (
+        <Loading text="Memuat profil..." />
+      ) : loadError ? (
+        <ErrorNotice
+          message={loadError}
+          onRetry={() => {
+            setLoading(true);
+            setLoadError('');
+            setReloadKey((k) => k + 1);
+          }}
+        />
+      ) : (
+        <div className="space-y-8">
+          <section className="bg-surface border border-line rounded-3xl p-6 md:p-8 shadow-xs">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-full bg-accent-soft text-primary flex items-center justify-center text-2xl font-bold" aria-hidden>
+                {values.name.trim().charAt(0).toUpperCase() || '?'}
+              </div>
+              <div className="min-w-0">
+                <p className="text-lg font-bold text-ink truncate">{values.name}</p>
+                <p className="text-sm text-ink-muted truncate">{values.email}</p>
+              </div>
+            </div>
+
+            <form onSubmit={submit} noValidate className="space-y-5">
+              <TextField label="Nama" icon={UserIcon} autoComplete="name" value={values.name} onChange={(e) => setField('name', e.target.value)} error={errors.name} />
+              <TextField label="Email" type="email" icon={Mail} autoComplete="email" value={values.email} onChange={(e) => setField('email', e.target.value)} error={errors.email} />
+              <div className="flex justify-end pt-2">
+                <button type="submit" disabled={saving} className={buttonPrimary}>
+                  <Save className="w-4 h-4" /> {saving ? 'Menyimpan...' : 'Simpan Profil'}
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section className="bg-surface border border-line rounded-3xl p-6 md:p-8 shadow-xs">
+            <h2 className="text-lg font-bold text-ink mb-5">Ganti Password</h2>
+            <ChangePasswordForm />
+          </section>
         </div>
-
-        {successMessage && (
-          <div className="mb-6 p-4 rounded-2xl bg-[#EFF6EE] border border-[#D4E8D1] text-[#4A7C43] text-sm flex items-center gap-3">
-            <CheckCircle className="w-5 h-5 shrink-0" />
-            <span>{successMessage}</span>
-          </div>
-        )}
-
-        {error && (
-          <div className="mb-6 p-4 rounded-2xl bg-[#FDF2F2] border border-[#F2D6D6] text-[#B96D6D] text-sm">
-            {error}
-          </div>
-        )}
-
-        {loading ? (
-          <div className="text-center py-20 text-[#8C7A6B]">Memuat profil...</div>
-        ) : (
-          <form onSubmit={handleUpdate} className="bg-[#FFFDF9] border border-[#F0E6DD] rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#7A6B5D] mb-2">Nama Lengkap</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#A89888]">
-                  <UserIcon className="w-5 h-5" />
-                </span>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="w-full pl-12 pr-4 py-3 bg-[#F9F6F0] border border-[#EBE0D5] rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#D8A7A7]"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#7A6B5D] mb-2">Email Address</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#A89888]">
-                  <Mail className="w-5 h-5" />
-                </span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full pl-12 pr-4 py-3 bg-[#F9F6F0] border border-[#EBE0D5] rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#D8A7A7]"
-                />
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-[#F5EBE6] flex justify-end">
-              <button
-                type="submit"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#7D5A50] hover:bg-[#684940] text-white font-medium rounded-2xl text-sm shadow-md transition"
-              >
-                <Save className="w-4 h-4" /> Simpan Perubahan
-              </button>
-            </div>
-          </form>
-        )}
-      </main>
-    </div>
+      )}
+    </PageShell>
   );
 }
