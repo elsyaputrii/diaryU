@@ -8,6 +8,7 @@ import TextField from '@/components/ui/TextField';
 import { buttonPrimary, buttonSecondary, inputClass, inputErrorClass } from '@/components/ui/styles';
 import { todayISO } from '@/lib/date';
 import { MOODS } from '@/features/mood/constants';
+import PrivateToggle from './PrivateToggle';
 import { DiaryFormErrors, DiaryFormValues, validateDiary } from '../validation';
 
 interface Props {
@@ -118,6 +119,8 @@ export default function DiaryForm({
           className={`${inputClass} ${errors.content ? inputErrorClass : ''}`}
         />
       </FormField>
+
+      <PrivateToggle checked={!!values.isPrivate} onChange={(v) => setField('isPrivate', v)} />
 
       <div className="flex justify-end gap-3 pt-4 border-t border-line">
         {cancelHref && (

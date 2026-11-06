@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Diary } from '@/types';
 import { useToast } from '@/providers/ToastProvider';
 import { getErrorMessage } from '@/lib/errors';
+import { removeLock } from '@/features/private/store';
 import { deleteDiary } from '../services/diaryService';
 
 /**
@@ -24,6 +25,7 @@ export function useDeleteDiary(onDeleted: (diary: Diary) => void) {
     setDeleting(true);
     try {
       await deleteDiary(target.id);
+      removeLock(target.id);
       toast.success('Catatan berhasil dihapus.');
       onDeleted(target);
       setTarget(null);

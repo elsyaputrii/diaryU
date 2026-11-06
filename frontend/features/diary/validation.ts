@@ -7,6 +7,8 @@ export interface DiaryFormValues {
   content: string;
   mood: MoodType;
   entryDate: string; // YYYY-MM-DD
+  /** Catatan privat (dikunci PIN). Disimpan di sisi browser, bukan dikirim ke API. */
+  isPrivate?: boolean;
 }
 
 export type DiaryFormErrors = Partial<Record<keyof DiaryFormValues, string>>;
