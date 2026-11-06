@@ -1,4 +1,9 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
+import { useAuthStatus } from '../tokenStorage';
 
 interface Props {
   title: string;
@@ -7,8 +12,15 @@ interface Props {
   footer: React.ReactNode;
 }
 
-/** Kartu tengah layar yang dipakai bersama oleh halaman Login dan Register. */
+/** Kartu tengah layar untuk Login, Register, dan Lupa Password. Pengguna yang sudah login dialihkan ke Home. */
 export default function AuthShell({ title, subtitle, children, footer }: Props) {
+  const router = useRouter();
+  const status = useAuthStatus();
+
+  useEffect(() => {
+    if (status === 'in') router.replace('/');
+  }, [status, router]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-page px-4 py-10">
       <div className="max-w-md w-full bg-surface border border-line rounded-3xl p-8 shadow-xl">

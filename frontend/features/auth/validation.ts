@@ -38,3 +38,9 @@ export function validateRegister(values: RegisterInput): RegisterErrors {
 
   return errors;
 }
+
+export function validateForgotPassword(email: string): string | undefined {
+  if (!email.trim()) return 'Email wajib diisi.';
+  if (!isValidEmail(email)) return 'Format email tidak valid.';
+  return undefined;
+}

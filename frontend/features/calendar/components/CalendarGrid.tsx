@@ -1,6 +1,9 @@
+'use client';
+
 import type { Diary } from '@/types';
 import { DAY_NAMES_SHORT } from '@/lib/date';
 import { getMood } from '@/features/mood/constants';
+import { usePrivacy } from '@/features/private/hooks/usePrivacy';
 import { buildMonthCells } from '../utils';
 
 interface Props {
@@ -20,6 +23,7 @@ interface Props {
  */
 export default function CalendarGrid({ year, month, entriesByDate, selectedDate, today, onSelect }: Props) {
   const cells = buildMonthCells(year, month);
+  const { isHidden } = usePrivacy();
 
   return (
     <div className="bg-surface border border-line rounded-3xl p-3 sm:p-6 shadow-xs">
@@ -64,7 +68,7 @@ export default function CalendarGrid({ year, month, entriesByDate, selectedDate,
                 <>
                   {/* Ponsel */}
                   <span className="sm:hidden text-[11px] text-ink-soft leading-none">
-                    {getMood(entries[0].mood).emoji}
+                    {isHidden(entries[0].id) ? '🔒' : getMood(entries[0].mood).emoji}
                     {entries.length > 1 && <b className="ml-0.5">×{entries.length}</b>}
                   </span>
 
@@ -72,7 +76,7 @@ export default function CalendarGrid({ year, month, entriesByDate, selectedDate,
                   <span className="hidden sm:block space-y-0.5 min-w-0">
                     {entries.slice(0, 2).map((e) => (
                       <span key={e.id} className="block text-[10px] font-semibold text-primary truncate">
-                        {getMood(e.mood).emoji} {e.title}
+                        {isHidden(e.id) ? '🔒 Privat' : `${getMood(e.mood).emoji} ${e.title}`}
                       </span>
                     ))}
                     {entries.length > 2 && (
