@@ -4,8 +4,6 @@ import "./globals.css";
 import { ToastProvider } from "@/providers/ToastProvider";
 import { themeInitScript } from "@/features/settings/themeScript";
 
-// Tiga font pilihan di halaman Settings. Masing-masing jadi variabel CSS
-// (--font-poppins, dst.) yang dipilih lewat data-font di globals.css.
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -25,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // suppressHydrationWarning: atribut data-theme/data-font diisi script sebelum React aktif
+    // suppressHydrationWarning: themeInitScript mengisi data-theme/data-font/data-size sebelum React hidrasi.
     <html
       lang="id"
       suppressHydrationWarning
@@ -34,7 +32,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="font-sans bg-page text-ink antialiased min-h-screen flex flex-col selection:bg-accent-soft selection:text-ink">
+      <body className="antialiased min-h-screen flex flex-col selection:bg-accent-soft selection:text-ink">
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

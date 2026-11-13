@@ -1,136 +1,156 @@
 @import "tailwindcss";
 
 /*
- * ============================================================
- *  TOKEN WARNA & FONT
- * ============================================================
- *  Semua warna aplikasi dipakai lewat nama semantik, contoh:
- *    bg-page, bg-surface, text-ink, border-line, bg-primary ...
- *  Nilainya berubah otomatis mengikuti atribut <html data-theme="...">.
- *  Untuk menambah tema baru, cukup tambah satu blok [data-theme="..."].
+ * Design token Elsya Diary.
+ * Warna dipakai lewat class Tailwind: bg-page, bg-surface, text-ink, text-primary, dst.
+ * Tema aktif dipilih lewat <html data-theme="light|dark|pastel"> (lihat features/settings).
+ * Tema "light" adalah palet asli Elsya Diary.
  */
 
-/* ---------- Tema LIGHT (default) ---------- */
 :root,
-[data-theme="light"] {
-  --page: #fdfbf7;
-  --surface: #fffdf9;
-  --field: #f9f6f0;
-  --hover: #f7f0eb;
-  --line: #f0e6dd;
-  --line-strong: #ebe0d5;
-  --ink: #5a4d41;
-  --ink-soft: #7a6b5d;
-  --ink-muted: #8c7a6b;
-  --primary: #7d5a50;
-  --primary-hover: #684940;
-  --on-primary: #ffffff;
-  --accent: #b96d6d;
-  --accent-soft: #f7ebe8;
-  --focus: #d8a7a7;
-  --danger: #b96d6d;
-  --danger-soft: #fdf2f2;
-  --danger-line: #f2d6d6;
-  --success: #4a7c43;
-  --success-soft: #eff6ee;
-  --success-line: #d4e8d1;
+html[data-theme="light"] {
+  --c-page: #fdfbf7;
+  --c-surface: #fffdf9;
+  --c-field: #f9f6f0;
+  --c-hover: #f7f0eb;
+  --c-line: #f0e6dd;
+  --c-line-strong: #ebe0d5;
+  --c-ink: #5a4d41;
+  --c-ink-soft: #7a6b5d;
+  --c-ink-muted: #8c7a6b;
+  --c-primary: #7d5a50;
+  --c-primary-hover: #684940;
+  --c-on-primary: #ffffff;
+  --c-accent: #b96d6d;
+  --c-accent-soft: #f7ebe8;
+  --c-focus: #d8a7a7;
+  --c-danger: #b96d6d;
+  --c-danger-soft: #fdf2f2;
+  --c-danger-line: #f2d6d6;
+  --c-success: #4f7a5f;
+  --c-success-soft: #eff7f1;
+  --c-success-line: #cfe4d6;
+  --c-hero-from: #f7ebe8;
+  --c-hero-to: #f3e2dc;
   color-scheme: light;
 }
 
-/* ---------- Tema DARK ---------- */
-[data-theme="dark"] {
-  --page: #1a1614;
-  --surface: #241f1c;
-  --field: #2c2622;
-  --hover: #342d28;
-  --line: #3a322d;
-  --line-strong: #4a403a;
-  --ink: #f2e9e1;
-  --ink-soft: #cdbfb3;
-  --ink-muted: #9c8d80;
-  --primary: #d9a18f;
-  --primary-hover: #e7b5a5;
-  --on-primary: #2a1f1a;
-  --accent: #e3a0a0;
-  --accent-soft: #3a2b2b;
-  --focus: #b77d7d;
-  --danger: #f0a0a0;
-  --danger-soft: #3a2323;
-  --danger-line: #5a3434;
-  --success: #9bd08f;
-  --success-soft: #202f20;
-  --success-line: #2f4a2f;
+html[data-theme="dark"] {
+  --c-page: #1a1614;
+  --c-surface: #241f1c;
+  --c-field: #2d2723;
+  --c-hover: #322b27;
+  --c-line: #3a322d;
+  --c-line-strong: #4a403a;
+  --c-ink: #f1e7df;
+  --c-ink-soft: #cdbfb4;
+  --c-ink-muted: #a99a8e;
+  --c-primary: #d9a18f;
+  --c-primary-hover: #e6b4a4;
+  --c-on-primary: #1a1614;
+  --c-accent: #e0a3a3;
+  --c-accent-soft: #3b2e2b;
+  --c-focus: #a8735f;
+  --c-danger: #ee9a9a;
+  --c-danger-soft: #3b2527;
+  --c-danger-line: #5c3437;
+  --c-success: #8fc7a0;
+  --c-success-soft: #22302a;
+  --c-success-line: #35503f;
+  --c-hero-from: #33272a;
+  --c-hero-to: #2a211f;
   color-scheme: dark;
 }
 
-/* ---------- Tema PASTEL ---------- */
-[data-theme="pastel"] {
-  --page: #fff5f9;
-  --surface: #ffffff;
-  --field: #fff0f6;
-  --hover: #ffe6f0;
-  --line: #f8d7e6;
-  --line-strong: #f2c4da;
-  --ink: #5b4570;
-  --ink-soft: #7c6592;
-  --ink-muted: #8e79a3;
-  --primary: #8f5fb8;
-  --primary-hover: #7c4ea3;
-  --on-primary: #ffffff;
-  --accent: #c2538a;
-  --accent-soft: #fbe3ef;
-  --focus: #d9a8e6;
-  --danger: #c0504d;
-  --danger-soft: #fff0f0;
-  --danger-line: #f8c8c8;
-  --success: #2f7d4b;
-  --success-soft: #eaf8ee;
-  --success-line: #bfe6cb;
+html[data-theme="pastel"] {
+  --c-page: #fff5f9;
+  --c-surface: #ffffff;
+  --c-field: #fbf3fb;
+  --c-hover: #f6ecfb;
+  --c-line: #f3e1ee;
+  --c-line-strong: #e8d0e6;
+  --c-ink: #4a3a5c;
+  --c-ink-soft: #6c5a80;
+  --c-ink-muted: #85739a;
+  --c-primary: #8f5fb8;
+  --c-primary-hover: #794ba0;
+  --c-on-primary: #ffffff;
+  --c-accent: #d96fa0;
+  --c-accent-soft: #fbe6f1;
+  --c-focus: #d3a8ec;
+  --c-danger: #cf5a73;
+  --c-danger-soft: #fff0f3;
+  --c-danger-line: #f6cdd6;
+  --c-success: #3f8a6a;
+  --c-success-soft: #eafaf2;
+  --c-success-line: #c4ead8;
+  --c-hero-from: #fde4f0;
+  --c-hero-to: #ece3fb;
   color-scheme: light;
 }
 
-/* ---------- FONT ---------- */
-/* Variabel --font-poppins dst. dibuat oleh next/font di app/layout.tsx */
-:root,
-[data-font="poppins"] {
-  --font-active: var(--font-poppins), system-ui, sans-serif;
-}
-[data-font="nunito"] {
-  --font-active: var(--font-nunito), system-ui, sans-serif;
-}
-[data-font="playfair"] {
-  --font-active: var(--font-playfair), Georgia, serif;
+@theme inline {
+  --color-page: var(--c-page);
+  --color-surface: var(--c-surface);
+  --color-field: var(--c-field);
+  --color-hover: var(--c-hover);
+  --color-line: var(--c-line);
+  --color-line-strong: var(--c-line-strong);
+  --color-ink: var(--c-ink);
+  --color-ink-soft: var(--c-ink-soft);
+  --color-ink-muted: var(--c-ink-muted);
+  --color-primary: var(--c-primary);
+  --color-primary-hover: var(--c-primary-hover);
+  --color-on-primary: var(--c-on-primary);
+  --color-accent: var(--c-accent);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-focus: var(--c-focus);
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-danger-line: var(--c-danger-line);
+  --color-success: var(--c-success);
+  --color-success-soft: var(--c-success-soft);
+  --color-success-line: var(--c-success-line);
+  --color-hero-from: var(--c-hero-from);
+  --color-hero-to: var(--c-hero-to);
 }
 
-/* Daftarkan token ke Tailwind -> bisa dipakai sebagai class (bg-page, text-ink, ...) */
-@theme inline {
-  --color-page: var(--page);
-  --color-surface: var(--surface);
-  --color-field: var(--field);
-  --color-hover: var(--hover);
-  --color-line: var(--line);
-  --color-line-strong: var(--line-strong);
-  --color-ink: var(--ink);
-  --color-ink-soft: var(--ink-soft);
-  --color-ink-muted: var(--ink-muted);
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-on-primary: var(--on-primary);
-  --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
-  --color-focus: var(--focus);
-  --color-danger: var(--danger);
-  --color-danger-soft: var(--danger-soft);
-  --color-danger-line: var(--danger-line);
-  --color-success: var(--success);
-  --color-success-soft: var(--success-soft);
-  --color-success-line: var(--success-line);
-  --font-sans: var(--font-active);
+/* Font: dipilih lewat <html data-font="poppins|nunito|playfair"> */
+html,
+html[data-font="poppins"] {
+  --app-font: var(--font-poppins), system-ui, sans-serif;
+}
+html[data-font="nunito"] {
+  --app-font: var(--font-nunito), system-ui, sans-serif;
+}
+html[data-font="playfair"] {
+  --app-font: var(--font-playfair), Georgia, serif;
+}
+
+/* Ukuran teks: semua ukuran Tailwind berbasis rem, jadi cukup mengubah ukuran dasar. */
+html,
+html[data-size="md"] {
+  font-size: 16px;
+}
+html[data-size="sm"] {
+  font-size: 14.5px;
+}
+html[data-size="lg"] {
+  font-size: 18px;
 }
 
 @layer base {
   body {
-    background-color: var(--page);
-    color: var(--ink);
+    background-color: var(--c-page);
+    color: var(--c-ink);
+    font-family: var(--app-font);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
