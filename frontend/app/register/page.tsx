@@ -64,7 +64,7 @@ export default function RegisterPage() {
 
   return (
     <AuthShell
-      title="Buat Akun Elsya Diary ✨"
+      title="Buat Akun Diary ✨"
       subtitle="Mulai simpan cerita dan perasaanmu dengan aman."
       footer={
         <>
@@ -99,7 +99,7 @@ export default function RegisterPage() {
           value={values.email}
           onChange={(e) => setField('email', e.target.value)}
           error={errors.email}
-          placeholder="elsya@example.com"
+          placeholder="Email@example.com"
         />
         <TextField
           label="Password"
