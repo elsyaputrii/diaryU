@@ -16,7 +16,19 @@ export function getErrorMessage(err: unknown, fallback: string): string {
     }
     const data = err.response.data as ApiErrorBody | undefined;
     const firstValidation = data?.errors ? Object.values(data.errors)[0]?.[0] : undefined;
-    return firstValidation || data?.message || fallback;
+    if (firstValidation || data?.message) return (firstValidation || data?.message) as string;
+    if (err.response.status === 404 || err.response.status === 405) {
+      return 'Fitur ini belum tersedia di server.';
+    }
+    return fallback;
   }
   return fallback;
+}
+
+/** Error validasi Laravel per field: { email: 'Email sudah dipakai.' } (kosong jika bukan error 422). */
+export function getFieldErrors(err: unknown): Record<string, string> {
+  if (!axios.isAxiosError(err)) return {};
+  const errors = (err.response?.data as ApiErrorBody | undefined)?.errors;
+  if (!errors) return {};
+  return Object.fromEntries(Object.entries(errors).map(([k, v]) => [k, v[0]]));
 }
