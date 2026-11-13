@@ -42,6 +42,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Token Bearer untuk frontend Next.js (driver didaftarkan di AppServiceProvider).
+        'api' => [
+            'driver' => 'api-token',
+            'provider' => 'users',
+        ],
     ],
 
     /*
