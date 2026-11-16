@@ -35,7 +35,7 @@ export default function HomePage() {
             Catat setiap cerita, emosi, dan kenangan indahmu hari ini.
           </h1>
           <p className="text-ink-soft text-sm md:text-base mb-6">
-            Tempat aman untuk merenung, melacak suasana hati, dan merekam perjalanan hidupmu dengan gaya minimalis dan elegan.
+            Tempat aman untuk merenung, melacak suasana hati, dan mencatat perjalanan hidupmu dengan aman.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link href="/diary/create" className={buttonPrimary}>

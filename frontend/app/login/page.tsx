@@ -53,7 +53,7 @@ export default function LoginPage() {
 
   return (
     <AuthShell
-      title="Welcome Back to Elsya Diary ❤️"
+      title="Welcome Back to Ur Diary ❤️"
       subtitle="Silakan masuk untuk menulis dan membaca diary kamu."
       footer={
         <>
@@ -79,7 +79,7 @@ export default function LoginPage() {
           value={values.email}
           onChange={(e) => setField('email', e.target.value)}
           error={errors.email}
-          placeholder="elsya@example.com"
+          placeholder="Email@example.com"
         />
         <TextField
           label="Password"
@@ -89,7 +89,7 @@ export default function LoginPage() {
           value={values.password}
           onChange={(e) => setField('password', e.target.value)}
           error={errors.password}
-          placeholder="••••••••"
+          placeholder="Masukkan password"
         />
 
         <div className="text-right -mt-2">

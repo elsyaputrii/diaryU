@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
                 setError(undefined);
               }}
               error={error}
-              placeholder="elsya@example.com"
+              placeholder="Elsya@example.com"
             />
             <button type="submit" disabled={loading} className={`${buttonPrimary} w-full py-3.5`}>
               {loading ? 'Mengirim...' : 'Kirim Tautan Reset'}
