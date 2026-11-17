@@ -22,6 +22,8 @@ class DiaryRequest extends FormRequest
             'entry_date' => ['required', 'date_format:Y-m-d', 'before_or_equal:today'],
             'tags' => ['nullable', 'array', 'max:10'],
             'tags.*' => ['string', 'max:30'],
+            // Tidak dikirim = tidak berubah (frontend lama tetap aman). Default catatan baru: privat.
+            'is_public' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -38,6 +40,7 @@ class DiaryRequest extends FormRequest
             'entry_date.required' => 'Tanggal wajib diisi.',
             'entry_date.date_format' => 'Format tanggal harus YYYY-MM-DD.',
             'entry_date.before_or_equal' => 'Tanggal tidak boleh di masa depan.',
+            'is_public.boolean' => 'Pengaturan privasi tidak valid.',
         ];
     }
 }
