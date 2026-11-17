@@ -2,14 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BookOpen, Calendar, Home, Smile, User, LogOut, Settings } from 'lucide-react';
+import { BookOpen, Calendar, Compass, Home, Smile, User, LogOut, Settings } from 'lucide-react';
 import { logout } from '@/features/auth/services/authService';
 import { clearToken } from '@/features/auth/tokenStorage';
 import { useToast } from '@/providers/ToastProvider';
 
-// `short` = label pendek untuk bar bawah di ponsel (6 menu harus muat)
+// `short` = label pendek untuk bar bawah di ponsel (7 menu harus muat)
 const navItems = [
   { name: 'Home', short: 'Home', href: '/', icon: Home },
+  { name: 'Jelajah', short: 'Jelajah', href: '/explore', icon: Compass },
   { name: 'Diaries', short: 'Diary', href: '/diary', icon: BookOpen },
   { name: 'Mood Tracker', short: 'Mood', href: '/mood', icon: Smile },
   { name: 'Calendar', short: 'Kalender', href: '/calendar', icon: Calendar },
@@ -93,7 +94,7 @@ export default function Navbar() {
               key={item.name}
               href={item.href}
               aria-current={isActive(item.href) ? 'page' : undefined}
-              className={`flex flex-col items-center px-2 py-1.5 rounded-xl text-[10px] font-medium transition ${
+              className={`flex flex-col items-center px-1 py-1.5 rounded-xl text-[10px] font-medium transition ${
                 isActive(item.href) ? 'text-primary font-bold' : 'text-ink-muted'
               }`}
             >

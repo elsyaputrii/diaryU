@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Calendar, Lock, Trash2 } from 'lucide-react';
+import { Calendar, Globe, Heart, ImageIcon, Lock, MessageCircle, Trash2 } from 'lucide-react';
 import type { Diary } from '@/types';
 import { formatLongDate } from '@/lib/date';
 import MoodBadge from '@/features/mood/components/MoodBadge';
@@ -45,6 +45,29 @@ export default function DiaryCard({ diary, onDelete }: Props) {
           {hidden ? 'Isi catatan ini terkunci. Masukkan PIN untuk membukanya.' : diary.content}
         </p>
       </div>
+
+      {!hidden && (diary.is_public || (diary.images?.length ?? 0) > 0) && (
+        <div className="flex items-center gap-3 mb-4 text-xs text-ink-muted">
+          {diary.is_public && (
+            <>
+              <span className="inline-flex items-center gap-1" title="Dibagikan ke Jelajah">
+                <Globe className="w-3.5 h-3.5" /> Dibagikan
+              </span>
+              <span className="inline-flex items-center gap-1" aria-label={`${diary.likes_count ?? 0} suka`}>
+                <Heart className="w-3.5 h-3.5" /> {diary.likes_count ?? 0}
+              </span>
+              <span className="inline-flex items-center gap-1" aria-label={`${diary.comments_count ?? 0} komentar`}>
+                <MessageCircle className="w-3.5 h-3.5" /> {diary.comments_count ?? 0}
+              </span>
+            </>
+          )}
+          {(diary.images?.length ?? 0) > 0 && (
+            <span className="inline-flex items-center gap-1" aria-label={`${diary.images?.length} foto`}>
+              <ImageIcon className="w-3.5 h-3.5" /> {diary.images?.length}
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="flex items-center justify-between pt-4 border-t border-line">
         <Link href={`/diary/${diary.id}`} className="text-xs font-bold text-primary hover:underline">

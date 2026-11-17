@@ -9,6 +9,12 @@ export interface DiaryFormValues {
   entryDate: string; // YYYY-MM-DD
   /** Catatan privat (dikunci PIN). Disimpan di sisi browser, bukan dikirim ke API. */
   isPrivate?: boolean;
+  /** Dibagikan ke Jelajah (disimpan di server). Tidak bisa aktif bersamaan dengan isPrivate. */
+  isPublic?: boolean;
+  /** Foto baru yang akan diunggah setelah catatan tersimpan. */
+  images?: File[];
+  /** Foto tersimpan yang akan dihapus (mode edit). */
+  removedImageIds?: number[];
 }
 
 export type DiaryFormErrors = Partial<Record<keyof DiaryFormValues, string>>;

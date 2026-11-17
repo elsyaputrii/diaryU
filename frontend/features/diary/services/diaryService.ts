@@ -37,3 +37,21 @@ export async function updateDiary(id: string | number, payload: DiaryPayload): P
 export async function deleteDiary(id: string | number): Promise<void> {
   await apiClient.delete(`/diaries/${id}`);
 }
+
+/**
+ * Unggah 1-4 gambar ke catatan milik sendiri. Mengembalikan catatan terbaru (lengkap dengan daftar gambar).
+ * Header multipart wajib diisi manual karena apiClient memakai JSON sebagai default.
+ */
+export async function uploadDiaryImages(id: string | number, files: File[]): Promise<Diary> {
+  const form = new FormData();
+  files.forEach((file) => form.append('images[]', file));
+  const res = await apiClient.post(`/diaries/${id}/images`, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return normalize(res.data.data);
+}
+
+export async function deleteDiaryImage(id: string | number, imageId: number): Promise<Diary> {
+  const res = await apiClient.delete(`/diaries/${id}/images/${imageId}`);
+  return normalize(res.data.data);
+}

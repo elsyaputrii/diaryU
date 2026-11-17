@@ -8,7 +8,7 @@ import PageShell from '@/components/layout/PageShell';
 import ErrorNotice from '@/components/ui/ErrorNotice';
 import Loading from '@/components/ui/Loading';
 import DiaryForm from '@/features/diary/components/DiaryForm';
-import { createDiary } from '@/features/diary/services/diaryService';
+import { createDiary, uploadDiaryImages } from '@/features/diary/services/diaryService';
 import type { DiaryFormValues } from '@/features/diary/validation';
 import { MOODS } from '@/features/mood/constants';
 import { lockDiary } from '@/features/private/store';
@@ -33,6 +33,8 @@ function CreateDiaryContent() {
     mood: MOODS.some((m) => m.type === moodParam) ? (moodParam as MoodType) : 'happy',
     entryDate: /^\d{4}-\d{2}-\d{2}$/.test(dateParam) && dateParam <= todayISO() ? dateParam : todayISO(),
     isPrivate: false,
+    isPublic: false,
+    images: [],
   };
 
   const handleSubmit = async (values: DiaryFormValues) => {
@@ -44,9 +46,22 @@ function CreateDiaryContent() {
         content: values.content.trim(),
         mood: values.mood,
         entry_date: values.entryDate,
+        is_public: !!values.isPublic && !values.isPrivate,
       });
       if (values.isPrivate) lockDiary(created.id);
-      toast.success('Catatan berhasil disimpan.');
+
+      // Catatan sudah tersimpan; kegagalan unggah foto tidak boleh membuat pengguna menulis ulang.
+      if (values.images?.length) {
+        try {
+          await uploadDiaryImages(created.id, values.images);
+        } catch (uploadErr) {
+          toast.error(`Catatan tersimpan, tapi foto gagal diunggah. ${getErrorMessage(uploadErr, '')} Tambahkan lagi lewat Edit.`.trim());
+          router.push(`/diary/${created.id}`);
+          return;
+        }
+      }
+
+      toast.success(values.isPublic && !values.isPrivate ? 'Catatan disimpan dan dibagikan ke Jelajah.' : 'Catatan berhasil disimpan.');
       router.push('/diary');
     } catch (err) {
       const message = getErrorMessage(err, 'Gagal menyimpan diary.');

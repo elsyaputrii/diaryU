@@ -8,11 +8,16 @@ import TextField from '@/components/ui/TextField';
 import { buttonPrimary, buttonSecondary, inputClass, inputErrorClass } from '@/components/ui/styles';
 import { todayISO } from '@/lib/date';
 import { MOODS } from '@/features/mood/constants';
+import ImagePicker from '@/features/images/components/ImagePicker';
+import type { DiaryImage } from '@/types';
 import PrivateToggle from './PrivateToggle';
+import PublicToggle from './PublicToggle';
 import { DiaryFormErrors, DiaryFormValues, validateDiary } from '../validation';
 
 interface Props {
   initialValues: DiaryFormValues;
+  /** Foto yang sudah tersimpan (mode edit). */
+  existingImages?: DiaryImage[];
   submitLabel: string;
   submitting: boolean;
   /** Dipanggil HANYA jika semua field lolos validasi. */
@@ -30,6 +35,7 @@ interface Props {
  */
 export default function DiaryForm({
   initialValues,
+  existingImages = [],
   submitLabel,
   submitting,
   onSubmit,
@@ -39,6 +45,8 @@ export default function DiaryForm({
   const [values, setValues] = useState<DiaryFormValues>(initialValues);
   const [errors, setErrors] = useState<DiaryFormErrors>({});
   const contentId = useId();
+  const removed = values.removedImageIds ?? [];
+  const keptImages = existingImages.filter((img) => !removed.includes(img.id));
 
   const setField = <K extends keyof DiaryFormValues>(key: K, value: DiaryFormValues[K]) => {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -120,7 +128,27 @@ export default function DiaryForm({
         />
       </FormField>
 
-      <PrivateToggle checked={!!values.isPrivate} onChange={(v) => setField('isPrivate', v)} />
+      <ImagePicker
+        files={values.images ?? []}
+        onFilesChange={(files) => setField('images', files)}
+        existing={keptImages}
+        onRemoveExisting={(id) => setField('removedImageIds', [...removed, id])}
+      />
+
+      <div className="space-y-3">
+        <PublicToggle
+          checked={!!values.isPublic}
+          disabled={!!values.isPrivate}
+          onChange={(v) => setField('isPublic', v)}
+        />
+        <PrivateToggle
+          checked={!!values.isPrivate}
+          onChange={(v) => {
+            setField('isPrivate', v);
+            if (v) setField('isPublic', false); // dikunci PIN = tidak boleh publik
+          }}
+        />
+      </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-line">
         {cancelHref && (

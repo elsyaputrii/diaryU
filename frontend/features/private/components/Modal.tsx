@@ -8,11 +8,13 @@ interface Props {
   open: boolean;
   title: string;
   onClose: () => void;
+  /** Dialog lebih lebar (mis. pratinjau kamera). */
+  wide?: boolean;
   children: React.ReactNode;
 }
 
 /** Dialog generik (Esc / klik latar untuk menutup). */
-export default function Modal({ open, title, onClose, children }: Props) {
+export default function Modal({ open, title, onClose, wide = false, children }: Props) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -30,7 +32,7 @@ export default function Modal({ open, title, onClose, children }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="relative w-full max-w-sm bg-surface border border-line rounded-3xl p-6 shadow-xl"
+        className={`relative w-full ${wide ? 'max-w-lg' : 'max-w-sm'} bg-surface border border-line rounded-3xl p-6 shadow-xl`}
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-ink">{title}</h2>
